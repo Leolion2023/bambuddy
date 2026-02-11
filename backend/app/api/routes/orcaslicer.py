@@ -33,12 +33,14 @@ async def get_orcaslicer_settings(db: AsyncSession) -> dict:
     """Get OrcaSlicer settings from database.
 
     Returns:
-        Dict with keys: enabled, orcaslicer_path, auto_push_to_archive
+        Dict with keys: enabled, orcaslicer_path, auto_push_to_archive, use_external_api, api_url
     """
     settings = {
         "enabled": False,
         "orcaslicer_path": "",
         "auto_push_to_archive": True,
+        "use_external_api": False,
+        "api_url": "",
     }
 
     result = await db.execute(select(Settings))
@@ -49,6 +51,10 @@ async def get_orcaslicer_settings(db: AsyncSession) -> dict:
             settings["orcaslicer_path"] = setting.value
         elif setting.key == "orcaslicer_auto_push_to_archive":
             settings["auto_push_to_archive"] = setting.value.lower() == "true"
+        elif setting.key == "orcaslicer_use_external_api":
+            settings["use_external_api"] = setting.value.lower() == "true"
+        elif setting.key == "orcaslicer_api_url":
+            settings["api_url"] = setting.value
 
     return settings
 
@@ -62,17 +68,34 @@ async def get_orcaslicer_status(
     settings = await get_orcaslicer_settings(db)
     enabled = settings["enabled"]
     orcaslicer_path = settings["orcaslicer_path"]
+    use_external_api = settings["use_external_api"]
+    api_url = settings["api_url"]
 
-    service = get_orcaslicer_service(orcaslicer_path if orcaslicer_path else None)
-    available = service.is_available()
+    service = get_orcaslicer_service(
+        orcaslicer_path=orcaslicer_path if orcaslicer_path else None,
+        use_external_api=use_external_api,
+        api_url=api_url if api_url else None,
+    )
+
+    # Use async health check for accurate availability
+    try:
+        available = await service.health_check()
+    except Exception:
+        available = False
 
     message = None
     if enabled and not available:
-        message = "OrcaSlicer is enabled but executable not found"
+        if use_external_api:
+            message = "OrcaSlicer external API is not reachable"
+        else:
+            message = "OrcaSlicer executable not found"
     elif not enabled:
         message = "OrcaSlicer integration is disabled"
     elif available:
-        message = "OrcaSlicer is ready"
+        if use_external_api:
+            message = f"OrcaSlicer external API is ready ({api_url})"
+        else:
+            message = "OrcaSlicer is ready"
 
     return OrcaSlicerStatus(
         enabled=enabled,
@@ -95,9 +118,20 @@ async def slice_file(
     if not settings["enabled"]:
         raise HTTPException(status_code=400, detail="OrcaSlicer integration is not enabled")
 
-    # Get the service
-    service = get_orcaslicer_service(settings.get("orcaslicer_path"))
-    if not service.is_available():
+    # Get the service with full configuration
+    service = get_orcaslicer_service(
+        orcaslicer_path=settings.get("orcaslicer_path"),
+        use_external_api=settings.get("use_external_api", False),
+        api_url=settings.get("api_url"),
+    )
+
+    # Check availability
+    try:
+        available = await service.health_check()
+    except Exception:
+        available = False
+
+    if not available:
         raise HTTPException(status_code=503, detail="OrcaSlicer is not available")
 
     # Determine input file path

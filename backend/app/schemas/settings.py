@@ -38,6 +38,10 @@ class AppSettings(BaseModel):
     orcaslicer_auto_push_to_archive: bool = Field(
         default=True, description="Automatically push sliced files to archive"
     )
+    orcaslicer_use_external_api: bool = Field(
+        default=False, description="Use external OrcaSlicer API instead of local CLI"
+    )
+    orcaslicer_api_url: str = Field(default="", description="External OrcaSlicer API URL (e.g., http://localhost:8080)")
 
     # Updates
     check_updates: bool = Field(default=True, description="Automatically check for updates on startup")

@@ -14,6 +14,8 @@ export function OrcaSlicerSettings() {
   const [localEnabled, setLocalEnabled] = useState(false);
   const [localPath, setLocalPath] = useState('');
   const [localAutoPush, setLocalAutoPush] = useState(true);
+  const [localUseExternalApi, setLocalUseExternalApi] = useState(false);
+  const [localApiUrl, setLocalApiUrl] = useState('');
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Fetch OrcaSlicer status
@@ -35,6 +37,8 @@ export function OrcaSlicerSettings() {
       setLocalEnabled(settings.orcaslicer_enabled || false);
       setLocalPath(settings.orcaslicer_path || '');
       setLocalAutoPush(settings.orcaslicer_auto_push_to_archive !== false);
+      setLocalUseExternalApi(settings.orcaslicer_use_external_api || false);
+      setLocalApiUrl(settings.orcaslicer_api_url || '');
       setIsInitialized(true);
     }
   }, [settings]);
@@ -46,7 +50,9 @@ export function OrcaSlicerSettings() {
     const hasChanges =
       settings.orcaslicer_enabled !== localEnabled ||
       (settings.orcaslicer_path || '') !== localPath ||
-      (settings.orcaslicer_auto_push_to_archive !== false) !== localAutoPush;
+      (settings.orcaslicer_auto_push_to_archive !== false) !== localAutoPush ||
+      (settings.orcaslicer_use_external_api || false) !== localUseExternalApi ||
+      (settings.orcaslicer_api_url || '') !== localApiUrl;
 
     if (hasChanges) {
       const timeoutId = setTimeout(() => {
@@ -55,7 +61,7 @@ export function OrcaSlicerSettings() {
       return () => clearTimeout(timeoutId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localEnabled, localPath, localAutoPush, isInitialized]);
+  }, [localEnabled, localPath, localAutoPush, localUseExternalApi, localApiUrl, isInitialized]);
 
   // Save mutation
   const saveMutation = useMutation({
@@ -64,6 +70,8 @@ export function OrcaSlicerSettings() {
         orcaslicer_enabled: localEnabled,
         orcaslicer_path: localPath,
         orcaslicer_auto_push_to_archive: localAutoPush,
+        orcaslicer_use_external_api: localUseExternalApi,
+        orcaslicer_api_url: localApiUrl,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings'] });
@@ -122,30 +130,69 @@ export function OrcaSlicerSettings() {
               </label>
             </div>
 
-            {/* OrcaSlicer Path */}
+            {/* OrcaSlicer Configuration */}
             {localEnabled && (
               <>
-                <div className="space-y-2">
-                  <label htmlFor="orcaslicer-path" className="flex flex-col gap-1">
-                    <span className="font-medium">{t('orcaslicer.settings.pathLabel')}</span>
+                {/* Use External API Toggle */}
+                <div className="flex items-start justify-between gap-4">
+                  <label className="flex flex-col gap-1 flex-1">
+                    <span className="font-medium">{t('orcaslicer.settings.useExternalApi')}</span>
                     <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {t('orcaslicer.settings.pathHelp')}
+                      {t('orcaslicer.settings.useExternalApiDesc')}
                     </span>
                   </label>
-                  <input
-                    id="orcaslicer-path"
-                    type="text"
-                    value={localPath}
-                    onChange={(e) => setLocalPath(e.target.value)}
-                    placeholder={t('orcaslicer.settings.pathPlaceholder')}
-                    className="w-full px-3 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
-                  />
-                  {status?.orcaslicer_path && (
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {t('common.current')}: {status.orcaslicer_path}
-                    </div>
-                  )}
+                  <label className="relative inline-flex items-center cursor-pointer mt-1">
+                    <input
+                      type="checkbox"
+                      checked={localUseExternalApi}
+                      onChange={(e) => setLocalUseExternalApi(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                  </label>
                 </div>
+
+                {/* External API URL or Local Path */}
+                {localUseExternalApi ? (
+                  <div className="space-y-2">
+                    <label htmlFor="orcaslicer-api-url" className="flex flex-col gap-1">
+                      <span className="font-medium">{t('orcaslicer.settings.apiUrlLabel')}</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {t('orcaslicer.settings.apiUrlHelp')}
+                      </span>
+                    </label>
+                    <input
+                      id="orcaslicer-api-url"
+                      type="text"
+                      value={localApiUrl}
+                      onChange={(e) => setLocalApiUrl(e.target.value)}
+                      placeholder={t('orcaslicer.settings.apiUrlPlaceholder')}
+                      className="w-full px-3 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <label htmlFor="orcaslicer-path" className="flex flex-col gap-1">
+                      <span className="font-medium">{t('orcaslicer.settings.pathLabel')}</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {t('orcaslicer.settings.pathHelp')}
+                      </span>
+                    </label>
+                    <input
+                      id="orcaslicer-path"
+                      type="text"
+                      value={localPath}
+                      onChange={(e) => setLocalPath(e.target.value)}
+                      placeholder={t('orcaslicer.settings.pathPlaceholder')}
+                      className="w-full px-3 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
+                    />
+                    {status?.orcaslicer_path && (
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {t('common.current')}: {status.orcaslicer_path}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Auto-push to Archive */}
                 <div className="flex items-start justify-between gap-4">
