@@ -32,6 +32,13 @@ class AppSettings(BaseModel):
         description="Report Partial Usage for Failed Prints. When a print fails or is cancelled, report the estimated filament used up to that point based on layer progress.",
     )
 
+    # OrcaSlicer integration
+    orcaslicer_enabled: bool = Field(default=False, description="Enable OrcaSlicer integration for slicing")
+    orcaslicer_path: str = Field(default="", description="Path to OrcaSlicer executable")
+    orcaslicer_auto_push_to_archive: bool = Field(
+        default=True, description="Automatically push sliced files to archive"
+    )
+
     # Updates
     check_updates: bool = Field(default=True, description="Automatically check for updates on startup")
     check_printer_firmware: bool = Field(default=True, description="Check for printer firmware updates from Bambu Lab")

@@ -15,6 +15,7 @@ from backend.app.models.pending_upload import PendingUpload
 from backend.app.models.printer import Printer
 from backend.app.models.project import Project
 from backend.app.models.settings import Settings
+from backend.app.models.slicing_job import SlicingJob
 from backend.app.models.smart_plug import SmartPlug
 from backend.app.models.user import User
 
@@ -43,4 +44,5 @@ __all__ = [
     "GitHubBackupLog",
     "LocalPreset",
     "OrcaBaseProfile",
+    "SlicingJob",
 ]

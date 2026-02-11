@@ -191,6 +191,7 @@ from backend.app.api.routes import (
     metrics,
     notification_templates,
     notifications,
+    orcaslicer,
     pending_uploads,
     print_queue,
     printers,
@@ -2914,6 +2915,7 @@ app.include_router(kprofiles.router, prefix=app_settings.api_prefix)
 app.include_router(notifications.router, prefix=app_settings.api_prefix)
 app.include_router(notification_templates.router, prefix=app_settings.api_prefix)
 app.include_router(spoolman.router, prefix=app_settings.api_prefix)
+app.include_router(orcaslicer.router, prefix=app_settings.api_prefix)
 app.include_router(updates.router, prefix=app_settings.api_prefix)
 app.include_router(maintenance.router, prefix=app_settings.api_prefix)
 app.include_router(camera.router, prefix=app_settings.api_prefix)
