@@ -1686,6 +1686,61 @@ export interface LinkedSpoolsMap {
   linked: Record<string, LinkedSpoolInfo>; // tag (uppercase) -> spool info
 }
 
+// OrcaSlicer types
+export interface OrcaSlicerStatus {
+  enabled: boolean;
+  available: boolean;
+  message: string | null;
+  orcaslicer_path: string | null;
+}
+
+export interface SliceRequest {
+  file_id?: number;
+  archive_id?: number;
+  filament_preset_id?: number;
+  printer_preset_id?: number;
+  process_preset_id?: number;
+  auto_push_to_archive?: boolean;
+}
+
+export interface SliceJobResponse {
+  success: boolean;
+  job_id: string;
+  message: string;
+}
+
+export interface SliceJobStatus {
+  job_id: string;
+  status: string; // queued, processing, completed, failed
+  progress: number; // 0-100
+  error_message: string | null;
+  input_filename: string;
+  output_filename: string | null;
+  archive_id: number | null;
+  created_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+}
+
+export interface SliceJobList {
+  jobs: SliceJobStatus[];
+  total: number;
+}
+
+export interface OrcaSlicerProfile {
+  id: number;
+  name: string;
+  filament_type: string | null;
+  filament_vendor: string | null;
+  source: string;
+}
+
+export interface OrcaSlicerProfiles {
+  filament: OrcaSlicerProfile[];
+  printer: OrcaSlicerProfile[];
+  process: OrcaSlicerProfile[];
+}
+
 // Update types
 export interface VersionInfo {
   version: string;
@@ -3241,6 +3296,24 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
+
+  // OrcaSlicer Integration
+  getOrcaSlicerStatus: () => request<OrcaSlicerStatus>('/orcaslicer/status'),
+  sliceFile: (data: SliceRequest) =>
+    request<SliceJobResponse>('/orcaslicer/slice', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  getSliceJob: (jobId: string) => request<SliceJobStatus>(`/orcaslicer/jobs/${jobId}`),
+  listSliceJobs: (limit?: number) => {
+    const params = limit ? `?limit=${limit}` : '';
+    return request<SliceJobList>(`/orcaslicer/jobs${params}`);
+  },
+  cancelSliceJob: (jobId: string) =>
+    request<{ success: boolean; message: string }>(`/orcaslicer/jobs/${jobId}`, {
+      method: 'DELETE',
+    }),
+  getOrcaSlicerProfiles: () => request<OrcaSlicerProfiles>('/orcaslicer/profiles'),
 
   // Updates
   getVersion: () => request<VersionInfo>('/updates/version'),
