@@ -87,6 +87,8 @@ async def get_settings(
                 "spoolman_enabled",
                 "spoolman_disable_weight_sync",
                 "spoolman_report_partial_usage",
+                "orcaslicer_enabled",
+                "orcaslicer_auto_push_to_archive",
                 "check_updates",
                 "check_printer_firmware",
                 "virtual_printer_enabled",

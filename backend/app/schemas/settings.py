@@ -165,6 +165,9 @@ class AppSettingsUpdate(BaseModel):
     spoolman_sync_mode: str | None = None
     spoolman_disable_weight_sync: bool | None = None
     spoolman_report_partial_usage: bool | None = None
+    orcaslicer_enabled: bool | None = None
+    orcaslicer_path: str | None = None
+    orcaslicer_auto_push_to_archive: bool | None = None
     check_updates: bool | None = None
     check_printer_firmware: bool | None = None
     notification_language: str | None = None

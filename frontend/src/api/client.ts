@@ -775,6 +775,10 @@ export interface AppSettings {
   camera_view_mode: 'window' | 'embedded';
   // Preferred slicer
   preferred_slicer: 'bambu_studio' | 'orcaslicer';
+  // OrcaSlicer integration
+  orcaslicer_enabled: boolean;
+  orcaslicer_path: string;
+  orcaslicer_auto_push_to_archive: boolean;
   // Prometheus metrics
   prometheus_enabled: boolean;
   prometheus_token: string;
@@ -2074,7 +2078,7 @@ export const api = {
     request<{ message: string; auth_enabled: boolean }>('/auth/disable', {
       method: 'POST',
     }),
-  
+
   // Advanced Authentication
   testSMTP: (data: TestSMTPRequest) =>
     request<TestSMTPResponse>('/auth/smtp/test', {
