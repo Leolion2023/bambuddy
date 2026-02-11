@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.core.auth import RequirePermissionIfAuthEnabled, get_current_user_if_auth_enabled
+from backend.app.core.auth import RequirePermissionIfAuthEnabled, get_current_user_optional
 from backend.app.core.database import get_db
 from backend.app.core.permissions import Permission
 from backend.app.models.archive import PrintArchive
@@ -86,7 +86,7 @@ async def get_orcaslicer_status(
 async def slice_file(
     request: SliceRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User | None = Depends(get_current_user_if_auth_enabled),
+    current_user: User | None = Depends(get_current_user_optional),
     _: User | None = RequirePermissionIfAuthEnabled(Permission.SLICER_USE),
 ):
     """Submit a slicing job for a file from library or archive."""
@@ -192,7 +192,7 @@ async def get_job_status(
 async def list_jobs(
     limit: int = 50,
     db: AsyncSession = Depends(get_db),
-    current_user: User | None = Depends(get_current_user_if_auth_enabled),
+    current_user: User | None = Depends(get_current_user_optional),
     _: User | None = RequirePermissionIfAuthEnabled(Permission.SLICER_USE),
 ):
     """List slicing jobs for the current user."""

@@ -171,7 +171,7 @@ export function OrcaSlicerSettings() {
                   <Button
                     onClick={() => refetchStatus()}
                     disabled={!localEnabled}
-                    variant="outline"
+                    variant="primary"
                     className="flex-1"
                   >
                     {t('orcaslicer.settings.testConnection')}
