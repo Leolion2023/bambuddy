@@ -46,6 +46,7 @@ class OrcaSlicerStatus(BaseModel):
     available: bool
     message: str | None = None
     orcaslicer_path: str | None = None
+    api_path: str | None = None
 
 
 class SliceJobList(BaseModel):

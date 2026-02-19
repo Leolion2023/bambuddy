@@ -102,6 +102,7 @@ async def get_orcaslicer_status(
         available=available,
         message=message,
         orcaslicer_path=service.orcaslicer_path,
+        api_path=service.api_url,
     )
 
 
@@ -142,7 +143,7 @@ async def slice_file(
         file = result.scalar_one_or_none()
         if not file:
             raise HTTPException(status_code=404, detail="Library file not found")
-        input_file_path = file.path
+        input_file_path = file.file_path
     elif request.archive_id:
         # Get file from archive
         result = await db.execute(select(PrintArchive).where(PrintArchive.id == request.archive_id))

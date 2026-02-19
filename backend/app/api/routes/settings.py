@@ -89,6 +89,7 @@ async def get_settings(
                 "spoolman_report_partial_usage",
                 "orcaslicer_enabled",
                 "orcaslicer_auto_push_to_archive",
+                "orcaslicer_use_external_api",
                 "check_updates",
                 "check_printer_firmware",
                 "virtual_printer_enabled",
@@ -157,6 +158,7 @@ async def update_settings(
         "orcaslicer_path",
         "orcaslicer_use_external_api",
         "orcaslicer_api_url",
+        "orcaslicer_auto_push_to_archive",
     }
     orcaslicer_updated = bool(orcaslicer_keys & set(update_data.keys()))
 

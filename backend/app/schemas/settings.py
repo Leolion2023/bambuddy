@@ -172,6 +172,8 @@ class AppSettingsUpdate(BaseModel):
     orcaslicer_enabled: bool | None = None
     orcaslicer_path: str | None = None
     orcaslicer_auto_push_to_archive: bool | None = None
+    orcaslicer_use_external_api: bool | None = None
+    orcaslicer_api_url: str | None = None
     check_updates: bool | None = None
     check_printer_firmware: bool | None = None
     notification_language: str | None = None

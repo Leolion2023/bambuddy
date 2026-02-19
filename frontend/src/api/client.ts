@@ -779,6 +779,8 @@ export interface AppSettings {
   orcaslicer_enabled: boolean;
   orcaslicer_path: string;
   orcaslicer_auto_push_to_archive: boolean;
+  orcaslicer_use_external_api: boolean;
+  orcaslicer_api_url: string;
   // Prometheus metrics
   prometheus_enabled: boolean;
   prometheus_token: string;
