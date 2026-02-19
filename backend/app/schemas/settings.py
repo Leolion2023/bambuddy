@@ -32,6 +32,17 @@ class AppSettings(BaseModel):
         description="Report Partial Usage for Failed Prints. When a print fails or is cancelled, report the estimated filament used up to that point based on layer progress.",
     )
 
+    # OrcaSlicer integration
+    orcaslicer_enabled: bool = Field(default=False, description="Enable OrcaSlicer integration for slicing")
+    orcaslicer_path: str = Field(default="", description="Path to OrcaSlicer executable")
+    orcaslicer_auto_push_to_archive: bool = Field(
+        default=True, description="Automatically push sliced files to archive"
+    )
+    orcaslicer_use_external_api: bool = Field(
+        default=False, description="Use external OrcaSlicer API instead of local CLI"
+    )
+    orcaslicer_api_url: str = Field(default="", description="External OrcaSlicer API URL (e.g., http://localhost:8080)")
+
     # Updates
     check_updates: bool = Field(default=True, description="Automatically check for updates on startup")
     check_printer_firmware: bool = Field(default=True, description="Check for printer firmware updates from Bambu Lab")
@@ -158,6 +169,11 @@ class AppSettingsUpdate(BaseModel):
     spoolman_sync_mode: str | None = None
     spoolman_disable_weight_sync: bool | None = None
     spoolman_report_partial_usage: bool | None = None
+    orcaslicer_enabled: bool | None = None
+    orcaslicer_path: str | None = None
+    orcaslicer_auto_push_to_archive: bool | None = None
+    orcaslicer_use_external_api: bool | None = None
+    orcaslicer_api_url: str | None = None
     check_updates: bool | None = None
     check_printer_firmware: bool | None = None
     notification_language: str | None = None

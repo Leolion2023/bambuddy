@@ -87,6 +87,9 @@ async def get_settings(
                 "spoolman_enabled",
                 "spoolman_disable_weight_sync",
                 "spoolman_report_partial_usage",
+                "orcaslicer_enabled",
+                "orcaslicer_auto_push_to_archive",
+                "orcaslicer_use_external_api",
                 "check_updates",
                 "check_printer_firmware",
                 "virtual_printer_enabled",
@@ -150,7 +153,20 @@ async def update_settings(
     }
     mqtt_updated = bool(mqtt_keys & set(update_data.keys()))
 
+    # Check if OrcaSlicer settings are being updated
+    orcaslicer_keys = {
+        "orcaslicer_path",
+        "orcaslicer_use_external_api",
+        "orcaslicer_api_url",
+        "orcaslicer_auto_push_to_archive",
+    }
+    orcaslicer_updated = bool(orcaslicer_keys & set(update_data.keys()))
+
     for key, value in update_data.items():
+        # Sanitize orcaslicer_path by stripping whitespace
+        if key == "orcaslicer_path" and isinstance(value, str):
+            value = value.strip()
+
         # Convert value to string for storage
         if isinstance(value, bool):
             str_value = "true" if value else "false"
@@ -181,6 +197,27 @@ async def update_settings(
             await mqtt_relay.configure(mqtt_settings)
         except Exception:
             pass  # Don't fail the settings update if MQTT reconfiguration fails
+
+    # Update OrcaSlicer service if settings changed
+    if orcaslicer_updated:
+        try:
+            from backend.app.services.orcaslicer_service import get_orcaslicer_service
+
+            new_path = await get_setting(db, "orcaslicer_path")
+            use_external_api = (await get_setting(db, "orcaslicer_use_external_api") or "false") == "true"
+            api_url = await get_setting(db, "orcaslicer_api_url") or ""
+
+            # Update the service with the new configuration
+            get_orcaslicer_service(
+                orcaslicer_path=new_path,
+                use_external_api=use_external_api,
+                api_url=api_url if api_url else None,
+            )
+            mode = "external API" if use_external_api else "local CLI"
+            logger.info("Updated OrcaSlicer service to %s mode", mode)
+        except Exception as e:
+            logger.error("Failed to update OrcaSlicer service: %s", e)
+            # Don't fail the settings update if OrcaSlicer update fails
 
     # Return updated settings
     return await get_settings(db)

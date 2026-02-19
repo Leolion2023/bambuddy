@@ -150,6 +150,11 @@ class Permission(StrEnum):
     # WebSocket connection
     WEBSOCKET_CONNECT = "websocket:connect"
 
+    # Slicer
+    SLICER_USE = "slicer:use"
+    SLICER_PROFILES_READ = "slicer:profiles_read"
+    SLICER_PROFILES_MANAGE = "slicer:profiles_manage"
+
 
 # Permission categories for UI organization
 PERMISSION_CATEGORIES = {
@@ -283,6 +288,11 @@ PERMISSION_CATEGORIES = {
     "WebSocket": [
         Permission.WEBSOCKET_CONNECT,
     ],
+    "Slicer": [
+        Permission.SLICER_USE,
+        Permission.SLICER_PROFILES_READ,
+        Permission.SLICER_PROFILES_MANAGE,
+    ],
 }
 
 
@@ -377,6 +387,10 @@ DEFAULT_GROUPS = {
             Permission.SETTINGS_READ.value,
             # WebSocket
             Permission.WEBSOCKET_CONNECT.value,
+            # Slicer - full access
+            Permission.SLICER_USE.value,
+            Permission.SLICER_PROFILES_READ.value,
+            Permission.SLICER_PROFILES_MANAGE.value,
         ],
         "is_system": True,
     },
@@ -403,6 +417,8 @@ DEFAULT_GROUPS = {
             Permission.SYSTEM_READ.value,
             Permission.SETTINGS_READ.value,
             Permission.WEBSOCKET_CONNECT.value,
+            # Slicer - read only
+            Permission.SLICER_PROFILES_READ.value,
         ],
         "is_system": True,
     },

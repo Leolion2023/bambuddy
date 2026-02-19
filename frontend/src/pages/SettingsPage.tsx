@@ -1,36 +1,35 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, Plus, Plug, AlertTriangle, RotateCcw, Bell, Download, RefreshCw, ExternalLink, Globe, Droplets, Thermometer, FileText, Edit2, Send, CheckCircle, XCircle, History, Trash2, Zap, TrendingUp, Calendar, DollarSign, Power, PowerOff, Key, Copy, Database, X, Shield, Printer, Cylinder, Wifi, Home, Video, Users, Lock, Unlock, ChevronDown, ChevronRight, Check, Save, Mail } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AlertTriangle, Bell, Calendar, Check, CheckCircle, ChevronDown, ChevronRight, Copy, Cylinder, Database, DollarSign, Download, Droplets, Edit2, ExternalLink, FileText, Globe, History, Home, Key, Loader2, Lock, Mail, Package, Palette, Plug, Plus, Power, PowerOff, Printer, RefreshCw, RotateCcw, Save, Send, Shield, Thermometer, Trash2, TrendingUp, Unlock, Users, Video, Wifi, X, XCircle, Zap } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { api } from '../api/client';
-import { useAuth } from '../contexts/AuthContext';
-import { formatDateOnly } from '../utils/date';
-import type { AppSettings, AppSettingsUpdate, SmartPlug, SmartPlugStatus, NotificationProvider, NotificationTemplate, UpdateStatus, GitHubBackupStatus, CloudAuthStatus, UserCreate, UserUpdate, UserResponse, Group, GroupCreate, GroupUpdate, Permission, PermissionCategory } from '../api/client';
-import { Card, CardContent, CardHeader } from '../components/Card';
-import { Button } from '../components/Button';
-import { SmartPlugCard } from '../components/SmartPlugCard';
-import { AddSmartPlugModal } from '../components/AddSmartPlugModal';
-import { NotificationProviderCard } from '../components/NotificationProviderCard';
+import type { AppSettings, AppSettingsUpdate, CloudAuthStatus, GitHubBackupStatus, Group, GroupCreate, GroupUpdate, NotificationProvider, NotificationTemplate, Permission, PermissionCategory, SmartPlug, SmartPlugStatus, UpdateStatus, UserCreate, UserResponse, UserUpdate } from '../api/client';
+import { api, virtualPrinterApi } from '../api/client';
 import { AddNotificationModal } from '../components/AddNotificationModal';
-import { NotificationTemplateEditor } from '../components/NotificationTemplateEditor';
-import { NotificationLogViewer } from '../components/NotificationLogViewer';
+import { AddSmartPlugModal } from '../components/AddSmartPlugModal';
+import { APIBrowser } from '../components/APIBrowser';
+import { Button } from '../components/Button';
+import { Card, CardContent, CardHeader } from '../components/Card';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { CreateUserAdvancedAuthModal } from '../components/CreateUserAdvancedAuthModal';
-import { SpoolmanSettings } from '../components/SpoolmanSettings';
-import { ExternalLinksSettings } from '../components/ExternalLinksSettings';
-import { VirtualPrinterSettings } from '../components/VirtualPrinterSettings';
-import { GitHubBackupSettings } from '../components/GitHubBackupSettings';
 import { EmailSettings } from '../components/EmailSettings';
-import { APIBrowser } from '../components/APIBrowser';
-import { virtualPrinterApi } from '../api/client';
+import { ExternalLinksSettings } from '../components/ExternalLinksSettings';
+import { GitHubBackupSettings } from '../components/GitHubBackupSettings';
 import { defaultNavItems, getDefaultView, setDefaultView } from '../components/Layout';
-import { availableLanguages } from '../i18n';
+import { NotificationLogViewer } from '../components/NotificationLogViewer';
+import { NotificationProviderCard } from '../components/NotificationProviderCard';
+import { NotificationTemplateEditor } from '../components/NotificationTemplateEditor';
+import { OrcaSlicerSettings } from '../components/OrcaSlicerSettings';
+import { SmartPlugCard } from '../components/SmartPlugCard';
+import { SpoolmanSettings } from '../components/SpoolmanSettings';
+import { VirtualPrinterSettings } from '../components/VirtualPrinterSettings';
+import { useAuth } from '../contexts/AuthContext';
+import { useTheme, type DarkBackground, type LightBackground, type ThemeAccent, type ThemeStyle } from '../contexts/ThemeContext';
 import { useToast } from '../contexts/ToastContext';
-import { useTheme, type ThemeStyle, type DarkBackground, type LightBackground, type ThemeAccent } from '../contexts/ThemeContext';
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Palette } from 'lucide-react';
+import { availableLanguages } from '../i18n';
+import { formatDateOnly } from '../utils/date';
 
-const validTabs = ['general', 'network', 'plugs', 'email', 'notifications', 'filament', 'apikeys', 'virtual-printer', 'users', 'backup'] as const;
+const validTabs = ['general', 'network', 'plugs', 'email', 'notifications', 'filament', 'apikeys', 'orcaslicer', 'virtual-printer', 'users', 'backup'] as const;
 type TabType = typeof validTabs[number];
 
 export function SettingsPage() {
@@ -1054,6 +1053,17 @@ export function SettingsPage() {
               {apiKeys.length}
             </span>
           )}
+        </button>
+        <button
+          onClick={() => handleTabChange('orcaslicer')}
+          className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-2 ${
+            activeTab === 'orcaslicer'
+              ? 'text-bambu-green border-bambu-green'
+              : 'text-bambu-gray hover:text-gray-900 dark:hover:text-white border-transparent'
+          }`}
+        >
+          <Package className="w-4 h-4" />
+          {t('orcaslicer.settings.title')}
         </button>
         <button
           onClick={() => handleTabChange('virtual-printer')}
@@ -3136,6 +3146,10 @@ export function SettingsPage() {
             <APIBrowser apiKey={testApiKey} />
           </div>
         </div>
+      )}
+
+      {activeTab === 'orcaslicer' && (
+        <OrcaSlicerSettings />
       )}
 
       {/* Virtual Printer Tab */}
