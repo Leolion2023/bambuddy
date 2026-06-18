@@ -1,3 +1,5 @@
+# Archived as this feature is now supported natively with bambuddy
+
 <p align="center">
   <img src="static/img/bambuddy_logo_dark.png" alt="Bambuddy Logo" width="300">
 </p>
